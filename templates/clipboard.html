@@ -1,0 +1,27 @@
+{% for record in DATA %}
+    {% if record.type == 'image' %}
+        <div class="main">
+            <div class="base">
+                <div class="header">
+                    <img class="copy-icon" src="https://img.icons8.com/pastel-glyph/64/null/clipboard--v4.png"/>
+                    <button class="copy" onclick="copyText('data{{ loop.index }}')">Copy</button>
+                </div>
+                <div class="text-main" id="data{{ loop.index }}">
+                    <img id="image" src="data:image;base64,{{ record.data }}" alt="Image">
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="main">
+            <div class="base">
+                <div class="header">
+                    <img class="copy-icon" src="https://img.icons8.com/pastel-glyph/64/null/clipboard--v4.png"/>
+                    <button class="copy" onclick="copyText('data{{ loop.index }}')">Copy</button>
+                </div>
+                <div class="text-main" id="data{{ loop.index }}">
+                    {{ record.data }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}

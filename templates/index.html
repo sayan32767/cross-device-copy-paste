@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <title>Clipboard Data</title>
+</head>
+<body>
+    <div class="heading">
+        <h1>Clipit</h1>
+    </div>
+
+    <!--PRINT DATA USING JINJA2 HERE FROM OTHER HTML FILE-->
+    <div id="clipboard-data">
+        {% include 'clipboard.html' %}
+    </div>
+
+    <div class="rectangle1">
+        <!--TODO: retrieve the sent data in backend and add to db-->
+        <form action="/add" id="message-form", method="post">
+            <input id="input" type="text" name="message-form" placeholder="Copy something...">
+            <button id="send">
+                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </form>
+        <form action="/clear" id="clear-messages" method="get">
+            <button id="clear">
+                Clear
+            </button>
+        </form>
+    </div>
+
+    <script type="text/javascript" charset="utf-8">
+        function copyText(id) {
+            // Get the text/image from the div
+            try {
+                const imageSrc = document.querySelector(`#${id} img`).src;
+                const img = new Image();
+                img.src = imageSrc;
+                
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const dataURL = canvas.toDataURL();
+                    
+                    const tempImg = new Image();
+                    tempImg.src = dataURL;
+                    
+                    const tempLink = document.createElement('a');
+                    tempLink.href = dataURL;
+                    tempLink.download = 'image.png';
+                    document.body.appendChild(tempLink);
+                    tempLink.click();
+                    document.body.removeChild(tempLink);
+                }
+            } catch (error) {
+                const text = document.getElementById(id).innerText;
+
+                // Create a temporary input element
+                const tempInput = document.createElement("input");
+                
+                // Set the value of the input to the text we want to copy
+                tempInput.setAttribute("value", text);
+                
+                // Add the input element to the document
+                document.body.appendChild(tempInput);
+                
+                // Select the text in the input element
+                tempInput.select();
+                
+                // Copy the selected text
+                document.execCommand("copy");
+                
+                // Remove the input element from the document
+                document.body.removeChild(tempInput);
+                
+                // Alert the user that the text has been copied
+                alert("Copied to clipboard");
+            }
+        }
+    </script>
+
+    <script>
+        function refreshClipboardData() {
+            $.get('/refresh-clipboard', function(data) {
+                $('#clipboard-data').html(data);
+            });
+        }
+        setInterval(refreshClipboardData, 3000);
+    </script>
+
+</body>
+</html>
